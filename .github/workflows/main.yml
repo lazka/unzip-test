@@ -1,0 +1,217 @@
+name: Zip Extraction Benchmark - UV
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  benchmark-unzip:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Download UV zip file
+        shell: powershell
+        run: |
+          Write-Host "Downloading uv zip file..."
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest -Uri "https://github.com/astral-sh/uv/releases/download/0.9.5/uv-x86_64-pc-windows-msvc.zip" -OutFile "uv.zip"
+          Write-Host "File size: $((Get-Item uv.zip).Length / 1MB) MB"
+      
+      # Method 1: PowerShell Expand-Archive
+      - name: Method 1 - Expand-Archive
+        shell: powershell
+        run: |
+          Write-Host "=== Testing Expand-Archive ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            Expand-Archive -Path uv.zip -DestinationPath ./test1 -Force
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test1 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test1
+          Write-Host "Cleaned up`n"
+
+      # Method 2: tar command
+      - name: Method 2 - tar
+        shell: powershell
+        run: |
+          Write-Host "=== Testing tar ===" -ForegroundColor Cyan
+          New-Item -ItemType Directory -Force -Path ./test2 | Out-Null
+          $time = Measure-Command {
+            tar -xf uv.zip -C ./test2
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test2 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test2
+          Write-Host "Cleaned up`n"
+
+      # Method 3: 7-Zip
+      - name: Method 3 - 7-Zip
+        shell: powershell
+        run: |
+          Write-Host "=== Testing 7-Zip ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            & "C:\Program Files\7-Zip\7z.exe" x uv.zip -o./test3 -y | Out-Null
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test3 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test3
+          Write-Host "Cleaned up`n"
+
+      # Method 4: .NET System.IO.Compression
+      - name: Method 4 - .NET Direct
+        shell: powershell
+        run: |
+          Write-Host "=== Testing .NET System.IO.Compression ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD\uv.zip", "$PWD\test4")
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test4 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test4
+          Write-Host "Cleaned up`n"
+
+      # Method 5: Git Bash unzip
+      - name: Method 5 - Git Bash unzip
+        shell: bash
+        run: |
+          echo "=== Testing Git Bash unzip ==="
+          START=$(date +%s.%N)
+          unzip -q uv.zip -d ./test5
+          END=$(date +%s.%N)
+          DIFF=$(echo "$END - $START" | bc)
+          DIFF_MS=$(echo "$DIFF * 1000" | bc)
+          echo "✓ Time: $DIFF seconds (${DIFF_MS} ms)"
+          
+          FILE_COUNT=$(find ./test5 -type f | wc -l)
+          echo "Files extracted: $FILE_COUNT"
+          
+          rm -rf ./test5
+          echo "Cleaned up"
+          echo ""
+
+      # Method 6: Python zipfile
+      - name: Method 6 - Python zipfile
+        shell: powershell
+        run: |
+          Write-Host "=== Testing Python zipfile ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            python -c "import zipfile; zipfile.ZipFile('uv.zip').extractall('./test6')"
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test6 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test6
+          Write-Host "Cleaned up`n"
+
+      # Method 7: PowerShell COM Object
+      - name: Method 7 - Shell.Application COM
+        shell: powershell
+        run: |
+          Write-Host "=== Testing Shell.Application COM ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            $shell = New-Object -ComObject Shell.Application
+            $zip = $shell.NameSpace("$PWD\uv.zip")
+            New-Item -ItemType Directory -Force -Path ./test7 | Out-Null
+            $dest = $shell.NameSpace("$PWD\test7")
+            $dest.CopyHere($zip.Items(), 1044)
+            Start-Sleep -Seconds 1
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Note: COM method is asynchronous, time may not be accurate" -ForegroundColor Yellow
+          
+          $fileCount = (Get-ChildItem -Recurse ./test7 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test7
+          Write-Host "Cleaned up`n"
+
+      # Method 8: Node.js adm-zip
+      - name: Method 8 - Node.js adm-zip
+        shell: powershell
+        run: |
+          Write-Host "=== Testing Node.js adm-zip ===" -ForegroundColor Cyan
+          npm install --silent adm-zip
+          
+          $time = Measure-Command {
+            node -e "const AdmZip = require('adm-zip'); new AdmZip('uv.zip').extractAllTo('./test8', true);"
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test8 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test8
+          Remove-Item -Recurse -Force ./node_modules
+          Remove-Item -Force package-lock.json
+          Write-Host "Cleaned up`n"
+
+      # Method 9: 7-Zip with multi-threading
+      - name: Method 9 - 7-Zip (multi-threaded)
+        shell: powershell
+        run: |
+          Write-Host "=== Testing 7-Zip (multi-threaded) ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            & "C:\Program Files\7-Zip\7z.exe" x uv.zip -o./test9 -mmt=on -y | Out-Null
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test9 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test9
+          Write-Host "Cleaned up`n"
+
+      # Method 10: PowerShell with .NET (streaming)
+      - name: Method 10 - .NET Streaming
+        shell: powershell
+        run: |
+          Write-Host "=== Testing .NET Streaming ===" -ForegroundColor Cyan
+          $time = Measure-Command {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            New-Item -ItemType Directory -Force -Path ./test10 | Out-Null
+            $archive = [System.IO.Compression.ZipFile]::OpenRead("$PWD\uv.zip")
+            foreach ($entry in $archive.Entries) {
+              $destinationPath = Join-Path ./test10 $entry.FullName
+              $destinationDir = Split-Path -Parent $destinationPath
+              if (!(Test-Path $destinationDir)) {
+                New-Item -ItemType Directory -Force -Path $destinationDir | Out-Null
+              }
+              if ($entry.FullName -notlike "*/") {
+                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $destinationPath, $true)
+              }
+            }
+            $archive.Dispose()
+          }
+          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          
+          $fileCount = (Get-ChildItem -Recurse ./test10 | Measure-Object).Count
+          Write-Host "Files extracted: $fileCount"
+          
+          Remove-Item -Recurse -Force ./test10
+          Write-Host "Cleaned up`n"
+
+      # Final cleanup
+      - name: Final Cleanup
+        if: always()
+        shell: powershell
+        run: |
+          Write-Host "Cleaning up..." -ForegroundColor Cyan
+          Remove-Item -Force uv.zip -ErrorAction SilentlyContinue
+          Get-ChildItem -Directory -Filter "test*" | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          Write-Host "✓ Cleanup complete" -ForegroundColor Green
