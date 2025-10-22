@@ -32,7 +32,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test1
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 2: tar command
       - name: Method 2 - tar
@@ -49,7 +50,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test2
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 3: 7-Zip
       - name: Method 3 - 7-Zip
@@ -65,7 +67,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test3
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 4: .NET System.IO.Compression
       - name: Method 4 - .NET Direct
@@ -82,7 +85,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test4
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 5: Git Bash unzip
       - name: Method 5 - Git Bash unzip
@@ -117,7 +121,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test6
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 7: PowerShell COM Object
       - name: Method 7 - Shell.Application COM
@@ -139,7 +144,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test7
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 8: Node.js adm-zip
       - name: Method 8 - Node.js adm-zip
@@ -159,7 +165,8 @@ jobs:
           Remove-Item -Recurse -Force ./test8
           Remove-Item -Recurse -Force ./node_modules
           Remove-Item -Force package-lock.json
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 9: 7-Zip with multi-threading
       - name: Method 9 - 7-Zip (multi-threaded)
@@ -175,7 +182,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test9
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Method 10: PowerShell with .NET (streaming)
       - name: Method 10 - .NET Streaming
@@ -204,7 +212,8 @@ jobs:
           Write-Host "Files extracted: $fileCount"
           
           Remove-Item -Recurse -Force ./test10
-          Write-Host "Cleaned up`n"
+          Write-Host "Cleaned up"
+          Write-Host ""
 
       # Final cleanup
       - name: Final Cleanup
