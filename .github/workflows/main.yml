@@ -59,7 +59,7 @@ jobs:
         run: |
           Write-Host "=== Testing 7-Zip ===" -ForegroundColor Cyan
           $time = Measure-Command {
-            & "C:\Program Files\7-Zip\7z.exe" x uv.zip -o./test3 -y | Out-Null
+            & "C:\Program Files\7-Zip\7z.exe" x uv.zip "-o./test3" -y | Out-Null
           }
           Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
@@ -174,7 +174,7 @@ jobs:
         run: |
           Write-Host "=== Testing 7-Zip (multi-threaded) ===" -ForegroundColor Cyan
           $time = Measure-Command {
-            & "C:\Program Files\7-Zip\7z.exe" x uv.zip -o./test9 -mmt=on -y | Out-Null
+            & "C:\Program Files\7-Zip\7z.exe" x uv.zip "-o./test9" -mmt=on -y | Out-Null
           }
           Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
