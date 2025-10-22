@@ -26,7 +26,7 @@ jobs:
           $time = Measure-Command {
             Expand-Archive -Path uv.zip -DestinationPath ./test1 -Force
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test1 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -44,7 +44,7 @@ jobs:
           $time = Measure-Command {
             tar -xf uv.zip -C ./test2
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test2 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -61,7 +61,7 @@ jobs:
           $time = Measure-Command {
             & "C:\Program Files\7-Zip\7z.exe" x uv.zip -o./test3 -y | Out-Null
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test3 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -79,7 +79,7 @@ jobs:
             Add-Type -AssemblyName System.IO.Compression.FileSystem
             [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD\uv.zip", "$PWD\test4")
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test4 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -98,7 +98,7 @@ jobs:
           END=$(date +%s.%N)
           DIFF=$(echo "$END - $START" | bc)
           DIFF_MS=$(echo "$DIFF * 1000" | bc)
-          echo "✓ Time: $DIFF seconds (${DIFF_MS} ms)"
+          echo "Time: $DIFF seconds - ${DIFF_MS} ms"
           
           FILE_COUNT=$(find ./test5 -type f | wc -l)
           echo "Files extracted: $FILE_COUNT"
@@ -115,7 +115,7 @@ jobs:
           $time = Measure-Command {
             python -c "import zipfile; zipfile.ZipFile('uv.zip').extractall('./test6')"
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test6 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -137,7 +137,7 @@ jobs:
             $dest.CopyHere($zip.Items(), 1044)
             Start-Sleep -Seconds 1
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           Write-Host "Note: COM method is asynchronous, time may not be accurate" -ForegroundColor Yellow
           
           $fileCount = (Get-ChildItem -Recurse ./test7 | Measure-Object).Count
@@ -157,7 +157,7 @@ jobs:
           $time = Measure-Command {
             node -e "const AdmZip = require('adm-zip'); new AdmZip('uv.zip').extractAllTo('./test8', true);"
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test8 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -176,7 +176,7 @@ jobs:
           $time = Measure-Command {
             & "C:\Program Files\7-Zip\7z.exe" x uv.zip -o./test9 -mmt=on -y | Out-Null
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test9 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -206,7 +206,7 @@ jobs:
             }
             $archive.Dispose()
           }
-          Write-Host "✓ Time: $($time.TotalSeconds) seconds ($($time.TotalMilliseconds) ms)" -ForegroundColor Green
+          Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
           $fileCount = (Get-ChildItem -Recurse ./test10 | Measure-Object).Count
           Write-Host "Files extracted: $fileCount"
@@ -223,4 +223,4 @@ jobs:
           Write-Host "Cleaning up..." -ForegroundColor Cyan
           Remove-Item -Force uv.zip -ErrorAction SilentlyContinue
           Get-ChildItem -Directory -Filter "test*" | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-          Write-Host "✓ Cleanup complete" -ForegroundColor Green
+          Write-Host "Cleanup complete" -ForegroundColor Green
