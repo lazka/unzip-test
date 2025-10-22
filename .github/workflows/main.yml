@@ -221,7 +221,7 @@ jobs:
         run: |
           Write-Host "=== Testing GitHub Actions Native Method ===" -ForegroundColor Cyan
           $time = Measure-Command {
-            & "C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { } ; try { [System.IO.Compression.ZipFile]::ExtractToDirectory('$PWD\uv.zip', '$PWD\test11', `$true) } catch { if ((`$_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or (`$_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath '$PWD\uv.zip' -DestinationPath '$PWD\test11' -Force } else { throw `$_ } } ;"
+            & "C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "`$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { } ; try { [System.IO.Compression.ZipFile]::ExtractToDirectory('$PWD\uv.zip', '$PWD\test11', `$true) } catch { if ((`$_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or (`$_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath '$PWD\uv.zip' -DestinationPath '$PWD\test11' -Force } else { throw `$_ } } ;"
           }
           Write-Host "Time: $($time.TotalSeconds) seconds - $($time.TotalMilliseconds) ms" -ForegroundColor Green
           
@@ -231,7 +231,6 @@ jobs:
           Remove-Item -Recurse -Force ./test11
           Write-Host "Cleaned up"
           Write-Host ""
-
 
       # Final cleanup
       - name: Final Cleanup
