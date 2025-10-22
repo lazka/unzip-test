@@ -93,12 +93,13 @@ jobs:
         shell: bash
         run: |
           echo "=== Testing Git Bash unzip ==="
-          START=$(date +%s.%N)
+          START=$(date +%s%N)
           unzip -q uv.zip -d ./test5
-          END=$(date +%s.%N)
-          DIFF=$(echo "$END - $START" | bc)
-          DIFF_MS=$(echo "$DIFF * 1000" | bc)
-          echo "Time: $DIFF seconds - ${DIFF_MS} ms"
+          END=$(date +%s%N)
+          DIFF_NS=$((END - START))
+          DIFF_MS=$((DIFF_NS / 1000000))
+          DIFF_S=$(awk "BEGIN {print $DIFF_NS/1000000000}")
+          echo "Time: ${DIFF_S} seconds - ${DIFF_MS} ms"
           
           FILE_COUNT=$(find ./test5 -type f | wc -l)
           echo "Files extracted: $FILE_COUNT"
